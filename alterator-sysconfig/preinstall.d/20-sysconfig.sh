@@ -38,11 +38,15 @@ mkdir -p "$destdir/etc/sysconfig/"
 
 [ ! -f "$SYSCONFIG_KEYBOARD" ] ||
 	install -Dm0644 "$SYSCONFIG_KEYBOARD" "$destdir/$SYSCONFIG_KEYBOARD"
-
-if [ -f "/etc/X11/xinit/Xkbmap" -o -d "$destdir/etc/X11/xinit" ]; then
+if [ -d "$destdir/etc/X11/xinit" ]; then
+    if [ -f "$X11_KEYBOARD_CONF" ]; then
+	cp -a "$X11_KEYBOARD_CONF" "$destdir/$X11_KEYBOARD_CONF"
+	install -Dm0644 /dev/null "$destdir/etc/X11/xinit/Xkbmap"
+    elif [ -f "/etc/X11/xinit/Xkbmap" ]; then
 	layout=`shell_config_get "/etc/X11/xinit/Xkbmap" "-layout" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
 	options=`shell_config_get "/etc/X11/xinit/Xkbmap" "-option" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
 
+	install -Dm0644 /dev/null "$destdir/etc/X11/xinit/Xkbmap"
 	install -Dm0644 /dev/null "$destdir/$X11_KEYBOARD_CONF"
 cat > "$destdir/$X11_KEYBOARD_CONF" << EOF
 Section "InputClass"
@@ -52,6 +56,7 @@ MatchIsKeyboard "on"
 	Option "XkbOptions" "$options"
 EndSection
 EOF
+    fi
 fi
 
 [ ! -f "/etc/locale.conf" ] ||

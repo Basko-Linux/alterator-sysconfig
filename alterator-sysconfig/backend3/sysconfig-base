@@ -13,6 +13,7 @@ KBDDIR=$ALTCONFDIR/kbd
 CONFIGDIR=/etc/sysconfig/
 KBD_CONFIG=/etc/sysconfig/keyboard
 XKB_CONFIG=/etc/X11/xinit/Xkbmap
+X11_KEYBOARD_CONF="/etc/X11/xorg.conf.d/00-keyboard.conf"
 LOCALECTL=/usr/bin/localectl
 export DISPLAY=${DISPLAY:-:0}
 
@@ -91,9 +92,19 @@ on_message(){
           if [ -n "$in_layout" ]; then
             local path="$KBDDIR/$language/$in_layout"
 	    # update x11 keyboard mapping
-	    install -Dpm644 "$path.xkb" "$XKB_CONFIG" &&
-		/usr/bin/setxkbmap -option "" &&
-		/usr/bin/setxkbmap `cat "$XKB_CONFIG"`
+	    install -Dpm644 /dev/null "$XKB_CONFIG"
+	    /usr/bin/setxkbmap -option "" &&
+		/usr/bin/setxkbmap `cat "$path.xkb"`
+	    layout=`shell_config_get "$path.xkb" "-layout" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
+	    options=`shell_config_get "$path.xkb" "-option" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
+	    cat > "$destdir/$X11_KEYBOARD_CONF" << EOF
+Section "InputClass"
+Identifier "system-keyboard"
+MatchIsKeyboard "on"
+	Option "XkbLayout" "$layout"
+	Option "XkbOptions" "$options"
+EndSection
+EOF
 	    # update console keyboard mapping
 	    install -Dpm644 "$path.kbd" "$KBD_CONFIG" &&
 		/sbin/setsyskeytable >&2
