@@ -130,7 +130,7 @@ on_message(){
             write_locale_conf "$lang"
           fi
 
-          if echo "$in_language" | fgrep -qs ';'; then
+          if echo "$in_language" | grep -Fqs ';'; then
             printf 'SUPPORTED=%s\n' "$(write_language "$in_language")">>"$i18n_conf"
             printf '%s\n' "$(write_language "$in_language")">"$langmap_conf"
           else
