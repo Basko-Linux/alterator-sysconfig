@@ -89,15 +89,21 @@ on_message(){
         ;;
         write)
           local language="${in_language%%;*}"
+          local layout options path path_kbd
           if [ -n "$in_layout" ]; then
-            local path="$KBDDIR/$language/$in_layout"
-            # update x11 keyboard mapping
-            install -Dpm644 /dev/null "$XKB_CONFIG"
-            /usr/bin/setxkbmap -option "" &&
-                /usr/bin/setxkbmap `cat "$path.xkb"`
+            path="$KBDDIR/$language/$in_layout"
+            path_kbd="$path.kbd"
             layout=`shell_config_get "$path.xkb" "-layout" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
             options=`shell_config_get "$path.xkb" "-option" "[[:space:]]" | awk '$1=$1' 2>/dev/null`
-            cat > "$destdir/$X11_KEYBOARD_CONF" << EOF
+          fi
+          # update x11 keyboard mapping
+          /usr/bin/setxkbmap -option ""
+          [ -z "$path" ] || /usr/bin/setxkbmap `cat "$path.xkb"`
+          # cleanup unused Xkbmap config
+          install -Dpm644 /dev/null "$XKB_CONFIG"
+          # create X11 keyboard config
+          [ -n "$layout" ] || layout='us'
+          cat > "$destdir/$X11_KEYBOARD_CONF" << EOF
 Section "InputClass"
 Identifier "system-keyboard"
 MatchIsKeyboard "on"
@@ -105,12 +111,10 @@ MatchIsKeyboard "on"
 	Option "XkbOptions" "$options"
 EndSection
 EOF
-            # update console keyboard mapping
-            install -Dpm644 "$path.kbd" "$KBD_CONFIG" &&
-                /sbin/setsyskeytable >&2
-          else
-            rm -f "$KBD_CONFIG" "$XKB_CONFIG"
-          fi
+        # update console keyboard mapping
+        [ -n "$path_kbd" ] || path_kbd='/dev/null'
+        install -Dpm644 "$path_kbd" "$KBD_CONFIG" &&
+          /sbin/setsyskeytable >&2
         ;;
       esac
     ;;
