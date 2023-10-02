@@ -48,6 +48,7 @@ if [ -d "$destdir/etc/X11/xinit" ]; then
 
 	install -Dm0644 /dev/null "$destdir/etc/X11/xinit/Xkbmap"
 	install -Dm0644 /dev/null "$destdir/$X11_KEYBOARD_CONF"
+	[ -n "$layout" ] || layout='us'
 cat > "$destdir/$X11_KEYBOARD_CONF" << EOF
 Section "InputClass"
 Identifier "system-keyboard"
