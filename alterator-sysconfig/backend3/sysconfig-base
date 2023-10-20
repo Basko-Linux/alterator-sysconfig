@@ -12,6 +12,7 @@ ALTCONFDIR=/etc/alterator/sysconfig/
 KBDDIR=$ALTCONFDIR/kbd
 CONFIGDIR=/etc/sysconfig/
 KBD_CONFIG=/etc/sysconfig/keyboard
+VCONSOLE_CONF=/etc/vconsole.conf
 XKB_CONFIG=/etc/X11/xinit/Xkbmap
 X11_KEYBOARD_CONF="/etc/X11/xorg.conf.d/00-keyboard.conf"
 LOCALECTL=/usr/bin/localectl
@@ -72,6 +73,8 @@ write_locale_conf(){
 
 ### initial actions
 shell_config_set "$CONFIGDIR/consolefont" SYSFONT UniCyr_8x16
+[ -f "$VCONSOLE_CONF" ] &&
+	shell_config_set "$VCONSOLE_CONF" FONT UniCyr_8x16
 
 ### message loop
 
@@ -115,6 +118,11 @@ EOF
         [ -n "$path_kbd" ] || path_kbd='/dev/null'
         install -Dpm644 "$path_kbd" "$KBD_CONFIG" &&
           /sbin/setsyskeytable >&2
+        if [ -f "$VCONSOLE_CONF" ]; then
+          sed -i '/^KEYMAP/d' "$VCONSOLE_CONF"
+          [ -s "$path_kbd" ] &&
+            sed "s/KEYTABLE=/KEYMAP=/" "$path.kbd" >> "$VCONSOLE_CONF"
+        fi
         ;;
       esac
     ;;
