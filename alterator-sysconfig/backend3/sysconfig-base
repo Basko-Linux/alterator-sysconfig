@@ -38,6 +38,7 @@ write_layout(){
     ctrl_shift_toggle_ru_ua) echo "`_ "Control+Shift keys (UK,RU,EN)"`";;
     default) echo "`_ "Default"`";;
     nodeadkeys) echo "`_ "Without dead keys"`";;
+    win_space_toggle) echo "`_ "Win+Space keys"`";;
     *) echo "$1";;
   esac
 }
