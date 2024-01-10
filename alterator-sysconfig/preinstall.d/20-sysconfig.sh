@@ -77,3 +77,6 @@ if [ -e "$SYSCONFIG_KEYBOARD" -a -e "$SYSCONFIG_CONSOLEFONT" ]; then
 	[ -n "${UNIMAP-}" ] && shell_config_set "$destdir/$VCONSOLE_CONF" "FONT_UNIMAP" $UNIMAP 2>&1 || :
 	[ -n "${KEYTABLE-}" ] && shell_config_set "$destdir/$VCONSOLE_CONF" "KEYMAP" $KEYTABLE 2>&1 || :
 fi
+
+[ ! -f $destdir/etc/alterator/sysconfig/lang/langlist.all ] ||
+	cp /etc/alterator/sysconfig/lang/langlist.all $destdir/etc/alterator/sysconfig/lang/langlist.all
