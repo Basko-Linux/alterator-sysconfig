@@ -42,12 +42,7 @@
     (form-update-value "label2" (_ "Please select keyboard switch type:"))))
 
 (define (default-language)
-  (define-operation get-lang)
-  (let ((lang (string-join (get-lang (fluid-ref generic-session)) ":")))
-    (if (and (not-empty-string? lang)
-             (string<> "C" lang))
-      lang
-      "en_US")))
+  (let () "ru_RU"))
 
 (define (default-keyboard lst)
   (let ((current (woo-get-option (woo-read-first "/sysconfig-base/kbd") 'layout)))
